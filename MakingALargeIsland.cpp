@@ -1,62 +1,72 @@
-[Project]
-FileName=MakingALargeIsland.cpp
-Name=Project1
-Type=1
-Ver=2
-ObjFiles=
-Includes=
-Libs=
-PrivateResource=
-ResourceIncludes=
-MakeIncludes=
-Compiler=
-CppCompiler=
-Linker=
-IsCpp=1
-Icon=
-ExeOutput=
-ObjectOutput=
-LogOutput=
-LogOutputEnabled=0
-OverrideOutput=0
-OverrideOutputName=
-HostApplication=
-UseCustomMakefile=0
-CustomMakefile=
-CommandLine=
-Folders=
-IncludeVersionInfo=0
-SupportXPThemes=0
-CompilerSet=0
-CompilerSettings=0000000000000000000000000
-UnitCount=1
+class Solution {
+    int[] d = {-1, 0, 1, 0, -1};
+    int islctr = 1;
+    private void dfs(int R, int C, int row, int col,
+                     int[][] grid, boolean[][] vis, int islid) {
+        grid[row][col] = islid;
+        vis[row][col] = true;
+        
+        for (int i = 0; i < 4; i++) {
+            int ar = row + d[i];
+            int ac = col + d[i + 1];
+            if (ar >= 0 && ar < R &&
+                ac >= 0 && ac < C &&
+                grid[ar][ac] == 1 &&
+                !vis[ar][ac]) {
+                dfs(R, C, ar, ac, grid, vis, islid);
+            }
+        }
+    }
+    public int largestIsland(int[][] grid) {
 
-[VersionInfo]
-Major=1
-Minor=0
-Release=0
-Build=0
-LanguageID=1033
-CharsetID=1252
-CompanyName=
-FileVersion=
-FileDescription=Developed using the Dev-C++ IDE
-InternalName=
-LegalCopyright=
-LegalTrademarks=
-OriginalFilename=
-ProductName=
-ProductVersion=
-AutoIncBuildNr=0
-SyncProduct=1
+        int R = grid.length;
+        int C = grid[0].length;
 
-[Unit1]
-FileName=MakingALargeIsland.cpp
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
+        boolean[][] vis = new boolean[R][C];
+        for (int row = 0; row < R; row++) {
+            for (int col = 0; col < C; col++) {
 
+                if (grid[row][col] == 1 && !vis[row][col]) {
+                    dfs(R, C, row, col, grid, vis, ++islctr);
+                }
+            }
+        }
+        int[] cellcnt = new int[islctr + 1];
+        for (int row = 0; row < R; row++) {
+            for (int col = 0; col < C; col++) {
+
+                int id = grid[row][col];
+
+                if (id != 0)
+                    cellcnt[id]++;
+            }
+        }
+        int maxsize = 0;
+        for (int id = 2; id <= islctr; id++) {
+            maxsize = Math.max(maxsize, cellcnt[id]);
+        }
+        for (int row = 0; row < R; row++) {
+            for (int col = 0; col < C; col++) {
+                if (grid[row][col] == 0) {
+                    HashSet<Integer> set = new HashSet<>();
+                    for (int i = 0; i < 4; i++) {
+                        int ar = row + d[i];
+                        int ac = col + d[i + 1];
+                        if (ar >= 0 &&
+                            ar < R &&
+                            ac >= 0 &&
+                            ac < C &&
+                            grid[ar][ac] != 0) {
+                            set.add(grid[ar][ac]);
+                        }
+                    }
+                    int curr = 1;
+                    for (int id : set)
+                        curr += cellcnt[id];
+                    maxsize = Math.max(maxsize, curr);
+                }
+            }
+        }
+        return maxsize;
+    }
+}
